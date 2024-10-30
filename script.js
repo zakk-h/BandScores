@@ -19,49 +19,63 @@ function parseCSV(data) {
   });
 }
 
-// Initialize bands data and dropdowns
+// Initialize data and plot
 function init() {
   bandsData = parseCSV(csvData);
 
-  // Populate band selection dropdown
-  const bandSelect = document.getElementById("bandSelect");
-  const uniqueBands = [...new Set(bandsData.map(row => row["Band"]))];
-  uniqueBands.forEach(band => {
-    const option = document.createElement("option");
-    option.value = band;
-    option.textContent = band;
-    bandSelect.appendChild(option);
-  });
-}
-
-// Get selected bands and metrics, then plot
-function plotData() {
-  const selectedBands = Array.from(document.getElementById("bandSelect").selectedOptions).map(opt => opt.value);
-  const selectedMetrics = Array.from(document.getElementById("metricSelect").selectedOptions).map(opt => opt.value);
+  const draughnData = bandsData.find(row => row["Band"] === "Draughn");
+  const eastRutherfordData = bandsData.find(row => row["Band"] === "East Rutherford");
 
   const years = ["2022", "2023", "2024"];
+  const metrics = ["Music", "Visual", "General Effect", "Score", "Class Placement", "Overall Placement"];
+
   const datasets = [];
 
-  selectedBands.forEach(band => {
-    const bandData = bandsData.find(row => row["Band"] === band);
-
-    selectedMetrics.forEach(metric => {
-      const dataPoints = years.map(year => parseFloat(bandData[`${metric} ${year}`]));
-      datasets.push({
-        label: `${band} - ${metric}`,
-        data: dataPoints,
-        borderColor: getRandomColor(),
-        fill: false,
-      });
+  // Generate datasets for Draughn
+  metrics.forEach((metric, index) => {
+    const dataPoints = years.map(year => parseFloat(draughnData[`${metric} ${year}`]));
+    datasets.push({
+      label: `Draughn - ${metric}`,
+      data: dataPoints,
+      borderColor: getRandomColor(),
+      fill: false,
+      yAxisID: metric
     });
   });
 
-  renderChart(years, datasets);
+  // Generate datasets for East Rutherford
+  metrics.forEach((metric, index) => {
+    const dataPoints = years.map(year => parseFloat(eastRutherfordData[`${metric} ${year}`]));
+    datasets.push({
+      label: `East Rutherford - ${metric}`,
+      data: dataPoints,
+      borderColor: getRandomColor(),
+      fill: false,
+      yAxisID: metric
+    });
+  });
+
+  renderChart(years, datasets, metrics);
 }
 
-// Render chart using Chart.js with dynamic scaling
-function renderChart(labels, datasets) {
+// Render chart using Chart.js with multiple Y-axes
+function renderChart(labels, datasets, metrics) {
   const ctx = document.getElementById("chart").getContext("2d");
+
+  // Define multiple Y-axes for each metric
+  const yAxes = metrics.map(metric => ({
+    id: metric,
+    type: 'linear',
+    position: 'left',
+    scaleLabel: {
+      display: true,
+      labelString: metric
+    },
+    ticks: {
+      beginAtZero: false
+    }
+  }));
+
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -74,13 +88,7 @@ function renderChart(labels, datasets) {
         x: {
           title: { display: true, text: "Year" }
         },
-        y: {
-          beginAtZero: false,
-          title: { display: true, text: "Score" },
-          ticks: {
-            callback: function(value) { return Number(value).toFixed(2); }
-          }
-        }
+        y: yAxes,
       },
     },
   });
