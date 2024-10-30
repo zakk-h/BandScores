@@ -19,9 +19,11 @@ function parseCSV(data) {
   });
 }
 
-// Initialize bands data and dropdown
+// Initialize bands data and dropdowns
 function init() {
   bandsData = parseCSV(csvData);
+
+  // Populate band selection dropdown
   const bandSelect = document.getElementById("bandSelect");
   const uniqueBands = [...new Set(bandsData.map(row => row["Band"]))];
   uniqueBands.forEach(band => {
@@ -32,26 +34,32 @@ function init() {
   });
 }
 
-// Get selected band and metrics
+// Get selected bands and metrics, then plot
 function plotData() {
-  const selectedBand = document.getElementById("bandSelect").value;
+  const selectedBands = Array.from(document.getElementById("bandSelect").selectedOptions).map(opt => opt.value);
   const selectedMetrics = Array.from(document.getElementById("metricSelect").selectedOptions).map(opt => opt.value);
 
-  const bandData = bandsData.find(band => band["Band"] === selectedBand);
   const years = ["2022", "2023", "2024"];
-  const datasets = selectedMetrics.map(metric => {
-    return {
-      label: metric,
-      data: years.map(year => parseFloat(bandData[`${metric} ${year}`])),
-      borderColor: getRandomColor(),
-      fill: false,
-    };
+  const datasets = [];
+
+  selectedBands.forEach(band => {
+    const bandData = bandsData.find(row => row["Band"] === band);
+
+    selectedMetrics.forEach(metric => {
+      const dataPoints = years.map(year => parseFloat(bandData[`${metric} ${year}`]));
+      datasets.push({
+        label: `${band} - ${metric}`,
+        data: dataPoints,
+        borderColor: getRandomColor(),
+        fill: false,
+      });
+    });
   });
 
   renderChart(years, datasets);
 }
 
-// Render chart using Chart.js
+// Render chart using Chart.js with dynamic scaling
 function renderChart(labels, datasets) {
   const ctx = document.getElementById("chart").getContext("2d");
   new Chart(ctx, {
@@ -63,8 +71,16 @@ function renderChart(labels, datasets) {
     options: {
       responsive: true,
       scales: {
-        x: { title: { display: true, text: "Year" } },
-        y: { title: { display: true, text: "Score" } },
+        x: {
+          title: { display: true, text: "Year" }
+        },
+        y: {
+          beginAtZero: false,
+          title: { display: true, text: "Score" },
+          ticks: {
+            callback: function(value) { return Number(value).toFixed(2); }
+          }
+        }
       },
     },
   });
