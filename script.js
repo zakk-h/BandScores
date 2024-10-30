@@ -1,8 +1,6 @@
 const csvData = `Band,Music 2022,Marching 2022,General Effect 2022,Score 2022,Class Placement 2022,Overall Placement 2022,Music 2023,Visual 2023,General Effect 2023,Score 2023,Class Placement 2023,Overall Placement 2023,Music 2024,Visual 2024,General Effect 2024,Score 2024,Class Placement 2024,Overall Placement 2024
 East Rutherford,22,22,21,65,4,16,187.5,77.6,78,72.01,3,19,287.75,154.4,315,87.86,1,10
-Draughn,25.3,24.7,25,75,1,7,241.75,84,182,75.39,4,17,327.75,126.4,257,85.56,4,12
-East Burke,,,,67.3,2,15,,,85.13,3,10,,,,,,3,7
-Patton,,,,84.4,2,2,,,91.67,2,3,,,,,,1,3`;
+Draughn,25.3,24.7,25,75,1,7,241.75,84,182,75.39,4,17,327.75,126.4,257,85.56,4,12`;
 
 let bandsData = [];
 
@@ -31,48 +29,50 @@ function init() {
 
   const datasets = [];
 
-  // Generate datasets for Draughn
-  metrics.forEach((metric, index) => {
-    const dataPoints = years.map(year => parseFloat(draughnData[`${metric} ${year}`]));
+  // Create datasets for each metric and each band
+  metrics.forEach(metric => {
+    // Draughn data
+    const draughnPoints = years.map(year => parseFloat(draughnData[`${metric} ${year}`]));
     datasets.push({
       label: `Draughn - ${metric}`,
-      data: dataPoints,
+      data: draughnPoints,
       borderColor: getRandomColor(),
       fill: false,
-      yAxisID: metric
+      yAxisID: metric,
     });
-  });
 
-  // Generate datasets for East Rutherford
-  metrics.forEach((metric, index) => {
-    const dataPoints = years.map(year => parseFloat(eastRutherfordData[`${metric} ${year}`]));
+    // East Rutherford data
+    const eastRutherfordPoints = years.map(year => parseFloat(eastRutherfordData[`${metric} ${year}`]));
     datasets.push({
       label: `East Rutherford - ${metric}`,
-      data: dataPoints,
+      data: eastRutherfordPoints,
       borderColor: getRandomColor(),
       fill: false,
-      yAxisID: metric
+      yAxisID: metric,
     });
   });
 
   renderChart(years, datasets, metrics);
 }
 
-// Render chart using Chart.js with multiple Y-axes
+// Render chart with multiple Y-axes using Chart.js
 function renderChart(labels, datasets, metrics) {
-  const ctx = document.getElementById("chart").getContext("2d");
+  const ctx = document.getElementById("myChart").getContext("2d");
 
-  // Define multiple Y-axes for each metric
-  const yAxes = metrics.map(metric => ({
+  // Define multiple Y-axes, one for each metric
+  const yAxes = metrics.map((metric, index) => ({
     id: metric,
     type: 'linear',
-    position: 'left',
+    position: index % 2 === 0 ? 'left' : 'right', // Alternate axis position for better readability
     scaleLabel: {
       display: true,
-      labelString: metric
+      labelString: metric,
     },
     ticks: {
-      beginAtZero: false
+      beginAtZero: false,
+    },
+    grid: {
+      drawOnChartArea: false // Prevent overlapping grid lines
     }
   }));
 
@@ -90,11 +90,16 @@ function renderChart(labels, datasets, metrics) {
         },
         y: yAxes,
       },
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+      },
     },
   });
 }
 
-// Utility to get a random color for each dataset
+// Utility function to generate a random color
 function getRandomColor() {
   const letters = '0123456789ABCDEF';
   let color = '#';
