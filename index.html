@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Band Performance Visualization</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Band Performance Visualization</h1>
+  <label for="bandSelect">Select Band:</label>
+  <select id="bandSelect"></select>
+
+  <label for="metricSelect">Select Metrics:</label>
+  <select id="metricSelect" multiple>
+    <option value="Music">Music</option>
+    <option value="Visual">Visual</option>
+    <option value="General Effect">General Effect</option>
+    <option value="Score">Score</option>
+    <option value="Class Placement">Class Placement</option>
+    <option value="Overall Placement">Overall Placement</option>
+  </select>
+
+  <button onclick="plotData()">Plot</button>
+  <canvas id="chart" width="800" height="400"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
