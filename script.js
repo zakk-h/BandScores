@@ -38,28 +38,44 @@ function plotData() {
   const years = ["2022", "2023", "2024"];
   const datasets = [];
 
-  // Add datasets for Draughn
   metrics.forEach((metric, index) => {
-    const draughnPoints = years.map(year => parseFloat(draughnData[`${metric} ${year}`]));
-    datasets.push({
-      label: `Draughn - ${metric}`,
-      data: draughnPoints,
-      borderColor: getColor('gold', index),
-      fill: false,
-      yAxisID: metric,
-    });
-  });
+    if (metric === "Class Placement" || metric === "Overall Placement") {
+      // Plot values for each band without computing differences
+      const draughnPoints = years.map(year => parseFloat(draughnData[`${metric} ${year}`]));
+      const eastRutherfordPoints = years.map(year => parseFloat(eastRutherfordData[`${metric} ${year}`]));
 
-  // Add datasets for East Rutherford
-  metrics.forEach((metric, index) => {
-    const eastRutherfordPoints = years.map(year => parseFloat(eastRutherfordData[`${metric} ${year}`]));
-    datasets.push({
-      label: `East Rutherford - ${metric}`,
-      data: eastRutherfordPoints,
-      borderColor: getColor('red', index),
-      fill: false,
-      yAxisID: metric,
-    });
+      datasets.push({
+        label: `Draughn - ${metric}`,
+        data: draughnPoints,
+        borderColor: getColor('gold', index),
+        fill: false,
+        yAxisID: metric,
+      });
+
+      datasets.push({
+        label: `East Rutherford - ${metric}`,
+        data: eastRutherfordPoints,
+        borderColor: getColor('red', index),
+        fill: false,
+        yAxisID: metric,
+      });
+
+    } else {
+      // Plot the difference (East Rutherford - Draughn)
+      const differencePoints = years.map(year => {
+        const eastRutherfordValue = parseFloat(eastRutherfordData[`${metric} ${year}`]);
+        const draughnValue = parseFloat(draughnData[`${metric} ${year}`]);
+        return eastRutherfordValue - draughnValue;
+      });
+
+      datasets.push({
+        label: `Difference (East Rutherford - Draughn) - ${metric}`,
+        data: differencePoints,
+        borderColor: getColor('difference', index),
+        fill: false,
+        yAxisID: metric,
+      });
+    }
   });
 
   renderChart(years, datasets, metrics);
@@ -108,12 +124,14 @@ function renderChart(labels, datasets, metrics) {
   });
 }
 
-// Utility function to assign similar colors for each band's metrics
-function getColor(baseColor, index) {
-  if (baseColor === 'red') {
+// Utility function to assign similar colors
+function getColor(type, index) {
+  if (type === 'red') {
     return `rgba(255, ${50 + index * 40}, ${50 + index * 30}, 0.8)`; // Red shades
-  } else if (baseColor === 'gold') {
+  } else if (type === 'gold') {
     return `rgba(${255 - index * 20}, ${215 - index * 10}, ${0 + index * 20}, 0.8)`; // Gold shades
+  } else {
+    return `rgba(${50 + index * 40}, 50, ${255 - index * 30}, 0.8)`; // Unique color for differences
   }
 }
 
