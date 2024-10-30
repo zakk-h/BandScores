@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Band Performance Visualization</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Band Performance Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        canvas {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-  <h1>Band Performance Visualization</h1>
-  <label for="bandSelect">Select Band:</label>
-  <select id="bandSelect"></select>
-
-  <label for="metricSelect">Select Metrics:</label>
-  <select id="metricSelect" multiple>
-    <option value="Music">Music</option>
-    <option value="Visual">Visual</option>
-    <option value="General Effect">General Effect</option>
-    <option value="Score">Score</option>
-    <option value="Class Placement">Class Placement</option>
-    <option value="Overall Placement">Overall Placement</option>
-  </select>
-
-  <button onclick="plotData()">Plot</button>
-  <canvas id="chart" width="800" height="400"></canvas>
-
-  <script src="script.js"></script>
+    <h1>Band Performance Visualization</h1>
+    <canvas id="myChart" width="800" height="400"></canvas>
+    <script src="script.js"></script>
 </body>
 </html>
